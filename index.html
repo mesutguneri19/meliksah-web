@@ -3,75 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Melikşah Kekeç | Dijital Kimlik</title>
+    <title>Melihşah Kekeç | 3D Experience</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        :root {
-            --bg: #0f172a;
-            --text: #f8fafc;
-            --accent: #38bdf8;
-            --card-bg: #1e293b;
-        }
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', -apple-system, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 450px;
-            width: 100%;
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
+        canvas { display: block; }
+        #ui-layer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             text-align: center;
+            color: white;
+            pointer-events: none; /* Mouse 3D objelere geçsin */
+            text-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
-        .profile-img {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 3px solid var(--accent);
-            margin-bottom: 1rem;
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 20px;
+            pointer-events: all;
         }
-        h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-        p { color: #94a3b8; margin-bottom: 2rem; }
-        .links { display: flex; flex-direction: column; gap: 1rem; }
-        .link-card {
-            background: var(--card-bg);
-            padding: 15px;
-            border-radius: 12px;
-            text-decoration: none;
-            color: var(--text);
-            font-weight: 500;
-            transition: all 0.2s ease;
-            border: 1px solid transparent;
-        }
-        .link-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-2px);
-            background: #273549;
-        }
-        footer { margin-top: 3rem; font-size: 0.8rem; color: #64748b; }
+        h1 { margin: 0; font-size: 3rem; letter-spacing: 5px; color: #fbbf24; /* FB Sarısı */ }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div style="font-size: 3rem;">🚀</div> 
-        <h1>Melikşah Kekeç</h1>
-        <p>Mühendis | Müzisyen | Teknoloji Meraklısı</p>
-        
-        <div class="links">
-            <a href="mailto:merhaba@meliksahkekec.com.tr" class="link-card">📧 İletişime Geç</a>
-            <a href="#" class="link-card">🎵 Müzik Projeleri</a>
-            <a href="https://github.com" class="link-card">💻 GitHub Profilim</a>
-            <a href="https://linkedin.com" class="link-card">👔 LinkedIn</a>
+    <div id="ui-layer">
+        <div class="glass-card">
+            <h1>MELİHŞAH KEKEÇ</h1>
+            <p style="color: #60a5fa;">Cloud Engineer & Music Producer</p>
         </div>
-
-        <footer>
-            © 2026 Melikşah Kekeç. Tüm hakları saklıdır.
-        </footer>
     </div>
+
+    <script>
+        // 3D Sahne Kurulumu
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Parçacık Oluşturma (Stars/Neural Mesh)
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 5000;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for(let i=0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 10;
+        }
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+        const material = new THREE.PointsMaterial({
+            size: 0.005,
+            color: '#fbbf24'
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, material);
+        scene.add(particlesMesh);
+        camera.position.z = 2;
+
+        // Mouse Etkileşimi
+        let mouseX = 0;
+        let mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        // Animasyon Döngüsü
+        function animate() {
+            requestAnimationFrame(animate);
+            particlesMesh.rotation.y += 0.001;
+            if (mouseX > 0) {
+                particlesMesh.rotation.x = mouseY * 0.0001;
+                particlesMesh.rotation.y = mouseX * 0.0001;
+            }
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Pencere Boyutu Güncelleme
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
 </body>
 </html>
